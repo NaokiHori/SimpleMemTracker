@@ -16,7 +16,7 @@ static void test_smt_add_case0(void){
   smt_t *node_root = NULL;
   // exec
   {
-    int retval = smt_add(&node_root, ptr, count, size);
+    int retval = smt_add(&node_root, ptr, count, size, __FILE__, __LINE__);
     CU_ASSERT(retval_ans == retval);
     CU_ASSERT(node_root->ptr == ptr);
     CU_ASSERT(node_root->count == count);
@@ -45,7 +45,7 @@ static void test_smt_add_case1(void){
   // exec
   {
     nodes = init_sample_linked_list(&node_root, 5);
-    int retval = smt_add(&node_root, ptr, count, size);
+    int retval = smt_add(&node_root, ptr, count, size, __FILE__, __LINE__);
     CU_ASSERT(retval_ans == retval);
     CU_ASSERT(node_root->ptr == ptr);
     CU_ASSERT(node_root->count == count);

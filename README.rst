@@ -4,9 +4,9 @@ SimpleMemTracker
 
 |License|_
 
-|DocDeployment|_
+|WorkflowStatus|_ |DocDeployment|_
 
-|WorkflowStatus|_ |UnitTest|_ |MemoryLeak|_
+|UnitTest|_ |IntegrationTest|_
 
 |LastCommit|_
 
@@ -22,8 +22,8 @@ SimpleMemTracker
 .. |UnitTest| image:: https://github.com/NaokiHori/SimpleMemTracker/blob/artifacts/.github/workflows/artifacts/badge_cunit.svg
 .. _UnitTest: https://github.com/NaokiHori/Alpine-Dockerfiles/tree/cunit
 
-.. |MemoryLeak| image:: https://github.com/NaokiHori/SimpleMemTracker/blob/artifacts/.github/workflows/artifacts/badge_valgrind.svg
-.. _MemoryLeak: https://github.com/NaokiHori/Alpine-Dockerfiles/tree/valgrind
+.. |IntegrationTest| image:: https://github.com/NaokiHori/SimpleMemTracker/blob/artifacts/.github/workflows/artifacts/badge_valgrind.svg
+.. _IntegrationTest: https://github.com/NaokiHori/Alpine-Dockerfiles/tree/valgrind
 
 .. |LastCommit| image:: https://img.shields.io/github/last-commit/NaokiHori/SimpleMemTracker/master
 .. _LastCommit: https://github.com/NaokiHori/SimpleMemTracker/commits/master
@@ -65,4 +65,7 @@ SimpleMemTracker
 The last function could be useful for error handlings for instance.
 
 Please refer to the `documentation <https://naokihori.github.io/SimpleMemTracker/>`_ for details.
+
+Also some examples which are used as integration tests can be found in ``src`` directory.
+Unit tests are available under ``cunit`` directory.
 

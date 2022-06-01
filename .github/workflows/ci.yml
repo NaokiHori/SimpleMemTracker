@@ -60,20 +60,21 @@ jobs:
           ref: 'master'
       - name: Build and Run Tests
         run: |
-          ls -l
           make clean
           make
-          valgrind \
-            --leak-check=full \
-            --error-exitcode=1 \
-            --xml=yes \
-            --xml-file=valgrind.xml \
-            ./a.out
+          for f in *.out; do
+            valgrind \
+              --leak-check=full \
+              --error-exitcode=1 \
+              --xml=yes \
+              --xml-file=valgrind-$f.xml \
+              ./$f
+          done
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: valgrind
-          path: valgrind.xml
+          path: valgrind-*.xml
 
   publish:
     name: Publish CI results
@@ -117,8 +118,8 @@ jobs:
             color="green"
           fi
           # prepare url
-          label="Tests"
-          message="$n_test%20tests,%20$n_failures%20failures,%20$n_error%20errors"
+          label="UnitTest"
+          message="${n_test}tests,${n_failures}failures,${n_error}errors"
           link=https://img.shields.io/badge/$label-$message-$color.svg
           echo $link
           wget --output-document=badge_cunit.svg "$link"
@@ -127,14 +128,18 @@ jobs:
         run: |
           # find "error" tag in valgrind.xml
           # if not found, no memory leaks
-          label="MemoryLeak"
-          if grep "<error>" valgrind.xml > /dev/null; then
-            message="Failed"
-            color="red"
-          else
-            message="Passing"
-            color="green"
-          fi
+          label="IntegrationTest"
+          color="green"
+          n_test=0
+          n_failures=0
+          for f in valgrind-*.xml; do
+            n_test=$(($n_test+1))
+            if grep "<error>" $f > /dev/null; then
+              n_failures=$(($n_failures+1))
+              color="red"
+            fi
+          done
+          message="${n_test}tests,${n_failures}failures"
           link=https://img.shields.io/badge/$label-$message-$color.svg
           wget --output-document=badge_valgrind.svg $link
       # collect all artifacts (test logs and badges) which will be officially published
@@ -143,7 +148,7 @@ jobs:
           sudo mkdir -p .github/workflows/artifacts/
           sudo /bin/mv cunit.xml .github/workflows/artifacts/
           sudo /bin/mv cunit.json .github/workflows/artifacts/
-          sudo /bin/mv valgrind.xml .github/workflows/artifacts/
+          sudo /bin/mv valgrind-*.xml .github/workflows/artifacts/
           sudo /bin/mv badge_*.svg .github/workflows/artifacts/
       # start tracking artifacts
       - name: Track artifacts

@@ -2,9 +2,26 @@
 #include <stdlib.h>
 #include "simple_mem_tracker.h"
 
+/*
+ * example02:
+ * 1. allocate two buffers having different types
+ * 2. show their info
+ * 3. deallocate them sequentially
+ */
 
 typedef int type0;
-typedef double type1;
+typedef char type1;
+
+static int print_info(smt_t info){
+  printf("ptr: %p, allocated at %s:%d, count: %zu, size: %zu\n",
+      info.ptr,
+      info.file,
+      info.line,
+      info.count,
+      info.size
+  );
+  return 0;
+}
 
 int main(void){
   const size_t nitems = 10;
@@ -19,26 +36,16 @@ int main(void){
   }
   buf1 = smt_calloc(&memories, nitems, sizeof(type1));
   for(size_t i = 0; i < nitems; i++){
-    buf1[i] = 1.*i;
+    buf1[i] = 69+i;
   }
   if(smt_get_info(&info, memories, buf0) == 0){
-    printf("ptr: %p, allocated at %s:%d, count: %zu, size: %zu\n", info.ptr, info.file, info.line, info.count, info.size);
+    print_info(info);
   }
   if(smt_get_info(&info, memories, buf1) == 0){
-    printf("ptr: %p, allocated at %s:%d, count: %zu, size: %zu\n", info.ptr, info.file, info.line, info.count, info.size);
+    print_info(info);
   }
   smt_free(&memories, buf0);
   smt_free(&memories, buf1);
-  //
-  buf0 = smt_calloc(&memories, sizeof(type0), nitems);
-  for(size_t i = 0; i < nitems; i++){
-    buf0[i] = i;
-  }
-  buf1 = smt_calloc(&memories, sizeof(type1), nitems);
-  for(size_t i = 0; i < nitems; i++){
-    buf1[i] = 1.*i;
-  }
-  smt_free_all(&memories);
   //
   return 0;
 }

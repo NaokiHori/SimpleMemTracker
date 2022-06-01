@@ -1,28 +1,16 @@
 CC       := cc
 CFLAGS   := -O3 -std=c99 -Wall -Wextra#-DLOGGING_SMT
-DEPEND   := -MMD
 INCLUDES := -Iinclude
 SRCSDIR  := src
-OBJSDIR  := obj
-SRCS     := $(foreach dir, $(shell find $(SRCSDIR) -type d), $(wildcard $(dir)/*.c))
-OBJS     := $(addprefix $(OBJSDIR)/, $(subst $(SRCSDIR)/,,$(SRCS:.c=.o)))
-DEPS     := $(addprefix $(OBJSDIR)/, $(subst $(SRCSDIR)/,,$(SRCS:.c=.d)))
-TARGET   := a.out
+SRCS     := $(foreach dir, $(shell find $(SRCSDIR) -type d), $(wildcard $(dir)/example*.c))
+TARGETS  := $(subst $(SRCSDIR)/,,$(SRCS:.c=.out))
 
-all: $(TARGET)
+all: $(TARGETS)
 
-$(TARGET): $(OBJS)
-		$(CC) $(CFLAGS) $(DEPEND) -o $@ $^
-
-$(OBJSDIR)/%.o: $(SRCSDIR)/%.c
-		@if [ ! -e `dirname $@` ]; then \
-			mkdir -p `dirname $@`; \
-		fi
-		$(CC) $(CFLAGS) $(DEPEND) $(INCLUDES) -c $< -o $@
+%.out: $(SRCSDIR)/%.c
+		$(CC) $(CFLAGS) $(INCLUDES) $(SRCSDIR)/simple_mem_tracker.c $< -o $@
 
 clean:
-		$(RM) -r $(OBJSDIR) $(TARGET)
-
--include $(DEPS)
+		$(RM) $(TARGETS) *.xml
 
 .PHONY : all clean
