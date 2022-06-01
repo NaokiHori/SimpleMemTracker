@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stddef.h>
-#include <limits.h>
+#include <stddef.h> // size_t
+#include <string.h> // strlen
+#include <limits.h> // USHRT_MAX
 #include "simple_mem_tracker.h"
 
 
@@ -54,7 +55,7 @@ static int smt_get_nitems(size_t *nitems, smt_t *node_root){
   return RETVAL_SUCCESS;
 }
 
-static int smt_add(smt_t **node_root, void *ptr, const size_t count, const size_t size){
+static int smt_add(smt_t **node_root, void *ptr, const size_t count, const size_t size, const char file[], const int line){
   // allocate a node to hold ptr information
   smt_t *node_new = my_calloc(1, sizeof(smt_t));
   // assign members
@@ -62,6 +63,11 @@ static int smt_add(smt_t **node_root, void *ptr, const size_t count, const size_
   node_new->node_next = *node_root; // next node is root
   node_new->count = count;
   node_new->size = size;
+  size_t nitems_file = strlen(file);
+  node_new->file = calloc(nitems_file+1, sizeof(char));
+  memcpy(node_new->file, file, sizeof(char)*nitems_file);
+  node_new->file[nitems_file] = 0; // NUL
+  node_new->line = line;
   // now new code is the root
   *node_root = node_new;
   LOGGING("allocated   (%p), count: %zu, size: %zu\n", ptr, count, size);
@@ -81,6 +87,7 @@ static int smt_remove(smt_t **node_root, const void *ptr){
         node_prev->node_next = node_curr->node_next;
       }
       LOGGING("deallocated (%p), count: %zu, size: %zu\n", node_curr->ptr, node_curr->count, node_curr->size);
+      my_free(node_curr->file);
       my_free(node_curr);
       return RETVAL_SUCCESS;
     }else{
@@ -91,7 +98,7 @@ static int smt_remove(smt_t **node_root, const void *ptr){
   return RETVAL_FAILURE;
 }
 
-void *smt_calloc(smt_t **memories, const size_t count, const size_t size){
+void *my_smt_calloc(smt_t **memories, const size_t count, const size_t size, const char file[], const int line){
   size_t nitems;
   if(smt_get_nitems(&nitems, *memories) != RETVAL_SUCCESS){
     ERROR("More than %d buffers are allocated.\n", NITEMS_MAX);
@@ -100,7 +107,7 @@ void *smt_calloc(smt_t **memories, const size_t count, const size_t size){
     exit(EXIT_FAILURE);
   }
   void *ptr = my_calloc(count, size);
-  smt_add(memories, ptr, count, size);
+  smt_add(memories, ptr, count, size, file, line);
   return ptr;
 }
 

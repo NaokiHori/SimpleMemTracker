@@ -18,10 +18,15 @@ struct smt_t_ {
   size_t count;
   // size of each data
   size_t size;
+  // file name in which this buffer is allocated
+  char *file;
+  // line number at which this buffer is allocated
+  int line;
 };
 
 /* calloc */
-extern void *smt_calloc(smt_t **memories, const size_t count, const size_t size);
+extern void *my_smt_calloc(smt_t **memories, const size_t count, const size_t size, const char file[], const int line);
+#define smt_calloc(memories, count, size) my_smt_calloc((memories), (count), (size), __FILE__, __LINE__)
 /* free */
 extern void smt_free(smt_t **memories, void *ptr);
 extern void smt_free_all(smt_t **memories);
