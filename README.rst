@@ -4,7 +4,7 @@ SimpleMemTracker
 
 |License|_
 
-|DocDeployment|_
+.. |DocDeployment|_
 
 |WorkflowStatus|_ |UnitTest|_ |MemoryLeak|_
 
@@ -13,8 +13,8 @@ SimpleMemTracker
 .. |License| image:: https://img.shields.io/github/license/NaokiHori/SimpleMemTracker
 .. _License: https://opensource.org/licenses/MIT
 
-.. |DocDeployment| image:: https://github.com/NaokiHori/SimpleMemTracker/actions/workflows/documentation.yml/badge.svg
-.. _DocDeployment: https://naokihori.github.io/SimpleMemTracker/
+.. .. |DocDeployment| image:: https://github.com/NaokiHori/SimpleMemTracker/actions/workflows/documentation.yml/badge.svg
+.. .. _DocDeployment: https://naokihori.github.io/SimpleMemTracker/
 
 .. |WorkflowStatus| image:: https://github.com/NaokiHori/SimpleMemTracker/actions/workflows/ci.yml/badge.svg?branch=master
 .. _WorkflowStatus: https://github.com/NaokiHori/SimpleMemTracker/actions/workflows/ci.yml
@@ -35,6 +35,39 @@ SimpleMemTracker
 * ``smt_free`` (wrapper of ``malloc(3), free``)
 
 * ``smt_free_all`` (garbage collector)
+
+By calling the last function, all allocated buffers associated with a memory pool can be released all at once.
+
+A pseudo code is as follows
+
+.. code-block:: c
+
+   #include "simple_mem_tracker.h"
+
+
+   int my_function(void){
+     // memory pools
+     smt_t *memories_a = NULL;
+     smt_t *memories_b = NULL;
+     // buffers
+     int    *buf0 = NULL;
+     double *buf1 = NULL;
+     int    *buf2 = NULL;
+     char   *buf3 = NULL;
+     // allocate like this, can be inside functions
+     buf0 = smt_calloc(&memories_a, count0, sizeof(int));
+     buf1 = smt_calloc(&memories_b, count1, sizeof(double));
+     buf2 = smt_calloc(&memories_a, count2, sizeof(int));
+     buf3 = smt_calloc(&memories_b, count3, sizeof(char));
+     // complicated procedure
+     my_complicated_function(buf0, buf1, buf2, buf3);
+     // free buf0 and buf2, keep buf1 and buf3
+     smt_free_all(&memories_a);
+     // free buf1 and buf3
+     smt_free_all(&memories_b);
+     // here all memories are deallocated (no memory leaks)
+     return 0;
+   }
 
 **********
 Dependency
@@ -117,12 +150,8 @@ In other situations, however, the user might want this library to notify the fai
 
 To achieve this, buffers which have been allocated so far are freed in each condition in the above examples, which are quite noisy.
 
-.. code-block:: text
-
-   Actually it is sufficient to call ``free(buf0), free(buf1), free(buf2)``
-     everywhere in the above example, since all buffers are NULL-initialised
-     (``free(NULL)`` is well-defined).
-   But I think it is sufficient to understand the message.
+Actually it is sufficient to call ``free(buf0), free(buf1), free(buf2)`` everywhere in the above example, since all buffers are NULL-initialised (``free(NULL)`` is well-defined).
+But I think it is sufficient to understand the message.
 
 Also this is quite cumbersome since the programmer should remember all buffers allocated **including local buffers allocated in static functions**.
 The cumbersomeness get worse especially when the functions are nested (imagine each static function calls other functions).
@@ -132,7 +161,7 @@ This library is developed to do this easily:
 .. code-block:: c
 
    #include "my_library.h"
-   #include "smt.h"
+   #include "simple_mem_tracker.h"
 
 
    static int my_static_function_0(&smt_t **memories, void **buf){
@@ -194,7 +223,7 @@ where the differences are
 
 * allocation
 
-   ``calloc`` is replaced by its wrapper function ``smt_calloc``
+   ``calloc`` is replaced by its wrapper function ``smt_calloc``.
 
 * deallocation
 
