@@ -2,15 +2,33 @@
 SimpleMemTracker
 ################
 
-|License|_ |LastCommit|_
+|License|_
 
-.. |License| image:: https://img.shields.io/github/license/NaokiHori/SimpleLinkedList
+|DocDeployment|_
+
+|WorkflowStatus|_ |UnitTest|_ |MemoryLeak|_
+
+|LastCommit|_
+
+.. |License| image:: https://img.shields.io/github/license/NaokiHori/SimpleMemTracker
 .. _License: https://opensource.org/licenses/MIT
 
-.. |LastCommit| image:: https://img.shields.io/github/last-commit/NaokiHori/SimpleLinkedList/memory-tracker
-.. _LastCommit: https://github.com/NaokiHori/SimpleLinkedList/commits/memory-tracker
+.. |DocDeployment| image:: https://github.com/NaokiHori/SimpleMemTracker/actions/workflows/documentation.yml/badge.svg
+.. _DocDeployment: https://naokihori.github.io/SimpleMemTracker/
 
-Linked-list-based simple memory tracker (smt) in C99 with the following three functions
+.. |WorkflowStatus| image:: https://github.com/NaokiHori/SimpleMemTracker/actions/workflows/ci.yml/badge.svg?branch=master
+.. _WorkflowStatus: https://github.com/NaokiHori/SimpleMemTracker/actions/workflows/ci.yml
+
+.. |UnitTest| image:: https://github.com/NaokiHori/SimpleMemTracker/blob/artifacts/.github/workflows/artifacts/badge_cunit.svg
+.. _UnitTest: https://github.com/NaokiHori/Alpine-Dockerfiles/tree/cunit
+
+.. |MemoryLeak| image:: https://github.com/NaokiHori/SimpleMemTracker/blob/artifacts/.github/workflows/artifacts/badge_valgrind.svg
+.. _MemoryLeak: https://github.com/NaokiHori/Alpine-Dockerfiles/tree/valgrind
+
+.. |LastCommit| image:: https://img.shields.io/github/last-commit/NaokiHori/SimpleMemTracker/master
+.. _LastCommit: https://github.com/NaokiHori/SimpleMemTracker/commits/master
+
+`Linked-list <https://github.com/NaokiHori/SimpleLinkedList>`_-based simple memory tracker (smt) in C99 with the following three functions
 
 * ``smt_calloc`` (wrapper of ``malloc(3), calloc``)
 
