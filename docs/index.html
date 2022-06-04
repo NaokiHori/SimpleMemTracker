@@ -1,0 +1,270 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Documentation &#8212; SimpleMemTracker 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">SimpleMemTracker</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=NaokiHori&repo=SimpleMemTracker&type=true&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="documentation">
+<h1>Documentation<a class="headerlink" href="#documentation" title="Permalink to this heading">¶</a></h1>
+<p>Simple memory tracker written in <cite>C99</cite> and its unit and integration tests.</p>
+<section id="dependency">
+<h2>Dependency<a class="headerlink" href="#dependency" title="Permalink to this heading">¶</a></h2>
+<p>C compiler (later than C99), no dependency on external libraries</p>
+</section>
+<section id="motivation">
+<h2>Motivation<a class="headerlink" href="#motivation" title="Permalink to this heading">¶</a></h2>
+<p>Let’s consider the following pseudo code for instance, which is a library I would like to publish.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;my_library.h&quot;</span><span class="cp"></span>
+
+
+<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">my_static_function_0</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="n">buf</span><span class="p">){</span><span class="w"></span>
+<span class="w">  </span><span class="o">*</span><span class="n">buf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">calloc</span><span class="p">(</span><span class="w"> </span><span class="cm">/* arguments */</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/**********************/</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/***                ***/</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/*** process buffer ***/</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/***                ***/</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/**********************/</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="cm">/* some error */</span><span class="w"> </span><span class="p">){</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="c1">// simiar to my_static_function_0</span>
+<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">my_static_function_1</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="n">buf</span><span class="p">);</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">my_static_function_2</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="n">buf</span><span class="p">);</span><span class="w"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">my_library</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">arg</span><span class="p">){</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// buffers which will be allocated</span>
+<span class="w">  </span><span class="c1">//   in static functions</span>
+<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">buf0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">buf1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">buf2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// call functions, in which each buffer is allocated</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">my_static_function_0</span><span class="p">(</span><span class="o">&amp;</span><span class="n">buf0</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// error, early return</span>
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">buf0</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">my_static_function_1</span><span class="p">(</span><span class="o">&amp;</span><span class="n">buf1</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// error, early return</span>
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">buf0</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">buf1</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">my_static_function_2</span><span class="p">(</span><span class="o">&amp;</span><span class="n">buf2</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// error, early return</span>
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">buf0</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">buf1</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">buf2</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/**********************/</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/***                ***/</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/*** process buffer ***/</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/***                ***/</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/**********************/</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// return success after deallocating all buffers</span>
+<span class="w">  </span><span class="n">free</span><span class="p">(</span><span class="n">buf0</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">free</span><span class="p">(</span><span class="n">buf1</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">free</span><span class="p">(</span><span class="n">buf2</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>There is one function which is open to the user (<code class="docutils literal notranslate"><span class="pre">my_library</span></code>), and are three static functions which are hidden to the user (e.g. <code class="docutils literal notranslate"><span class="pre">my_static_function_0</span></code>).
+The static functions are called sequentially by <code class="docutils literal notranslate"><span class="pre">my_library</span></code>, in which each buffer (e.g. <code class="docutils literal notranslate"><span class="pre">buf0</span></code>) is allocated (by calling <code class="docutils literal notranslate"><span class="pre">calloc</span></code>) and processed.
+When everything works properly, all allocated memories <em>inside this library</em> are freed (e.g. <code class="docutils literal notranslate"><span class="pre">free(buf0,1,2)</span></code>) and returned (<code class="docutils literal notranslate"><span class="pre">return</span> <span class="pre">0</span></code>) finally.</p>
+<p>We notice a problem when one of the static function fails (<code class="docutils literal notranslate"><span class="pre">return</span> <span class="pre">-1</span></code>), which happens when the user input was invalid for instance.
+Sometimes this library can simply kill the whole program and abort (e.g. using <code class="docutils literal notranslate"><span class="pre">exit(EXIT_FAILURE)</span></code>), when the heap will be freed by the operating system automatically.
+In other situations, however, the user might want this library to notify the failure (<code class="docutils literal notranslate"><span class="pre">return</span> <span class="pre">-1</span></code> from <code class="docutils literal notranslate"><span class="pre">my_library</span></code>) and do <strong>not</strong> terminate the whole process; in this case all temporally memories allocated in this library should be cleaned-up (or memory leaks occur).</p>
+<p>To achieve this, buffers which have been allocated so far are freed in each condition in the above examples, which are quite noisy.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Actually it is sufficient to call <code class="docutils literal notranslate"><span class="pre">free(buf0),</span> <span class="pre">free(buf1),</span> <span class="pre">free(buf2)</span></code> everywhere in the above example, since all buffers are NULL-initialised (<code class="docutils literal notranslate"><span class="pre">free(NULL)</span></code> is well-defined).
+But I think it is sufficient to understand the message.</p>
+</div>
+<p>Also this is quite cumbersome since the programmer should remember all buffers allocated <strong>including local buffers allocated in static functions</strong>.
+This cumbersomeness gets even worse especially when the functions are nested (imagine each static function calls other functions and memories are allocated and freed in the other parts).</p>
+<p>This library is developed to do this a bit easier:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;my_library.h&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;simple_mem_tracker.h&quot;</span><span class="cp"></span>
+
+
+<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">my_static_function_0</span><span class="p">(</span><span class="o">&amp;</span><span class="n">smt_t</span><span class="w"> </span><span class="o">**</span><span class="n">memories</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="n">buf</span><span class="p">){</span><span class="w"></span>
+<span class="w">  </span><span class="o">*</span><span class="n">buf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">smt_calloc</span><span class="p">(</span><span class="n">memories</span><span class="p">,</span><span class="w"> </span><span class="cm">/* arguments */</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/**********************/</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/***                ***/</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/*** process buffer ***/</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/***                ***/</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/**********************/</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="cm">/* some error */</span><span class="w"> </span><span class="p">){</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="c1">// simiar to my_static_function_0</span>
+<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">my_static_function_1</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="n">buf</span><span class="p">);</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">my_static_function_2</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="n">buf</span><span class="p">);</span><span class="w"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">my_library</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">arg</span><span class="p">){</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// memory tracker (linked list)</span>
+<span class="w">  </span><span class="n">smt_t</span><span class="w"> </span><span class="o">*</span><span class="n">memories</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// buffers which will be allocated</span>
+<span class="w">  </span><span class="c1">//   in static functions</span>
+<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">buf0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">buf1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">buf2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// call functions, in which each buffer is allocated</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">my_static_function_0</span><span class="p">(</span><span class="o">&amp;</span><span class="n">memories</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">buf0</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// error, early return</span>
+<span class="w">    </span><span class="n">smt_free_all</span><span class="p">(</span><span class="o">&amp;</span><span class="n">memories</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">my_static_function_1</span><span class="p">(</span><span class="o">&amp;</span><span class="n">memories</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">buf1</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// error, early return</span>
+<span class="w">    </span><span class="n">smt_free_all</span><span class="p">(</span><span class="o">&amp;</span><span class="n">memories</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">my_static_function_2</span><span class="p">(</span><span class="o">&amp;</span><span class="n">memories</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">buf2</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// error, early return</span>
+<span class="w">    </span><span class="n">smt_free_all</span><span class="p">(</span><span class="o">&amp;</span><span class="n">memories</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/**********************/</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/***                ***/</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/*** process buffer ***/</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/***                ***/</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/**********************/</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// return success after deallocating all buffers</span>
+<span class="w">  </span><span class="n">smt_free_all</span><span class="p">(</span><span class="o">&amp;</span><span class="n">memories</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>where the differences are</p>
+<ul>
+<li><p>declaration of a memory pool</p>
+<blockquote>
+<div><p>A structure <code class="docutils literal notranslate"><span class="pre">smt_t</span> <span class="pre">*memories</span></code> is defined, which remember all allocated memories</p>
+</div></blockquote>
+</li>
+<li><p>allocation</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">calloc</span></code> is replaced by its wrapper function <code class="docutils literal notranslate"><span class="pre">smt_calloc</span></code>.</p>
+</div></blockquote>
+</li>
+<li><p>deallocation</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">free</span></code> is replaced by its wrapper function <code class="docutils literal notranslate"><span class="pre">smt_free</span></code>.
+<code class="docutils literal notranslate"><span class="pre">smt_free_all</span></code> is available to deallocate all allocated memories.</p>
+</div></blockquote>
+</li>
+</ul>
+<p>All procedures are completely capsuled by this library and the user does not have to pay attention.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Here the implementation is extremely simple, and no drawbacks (memory fragmentation among others) are taken into account.</p>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2022, Naoki Hori.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
