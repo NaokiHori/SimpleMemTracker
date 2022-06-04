@@ -18,19 +18,20 @@
 #define RETVAL_FAILURE (-1)
 
 #if defined(LOGGING_SMT)
-#define LOGGING(...){                  \
-  fprintf(stderr, "[SMT - LOGGING] "); \
-  fprintf(stderr, __VA_ARGS__);        \
+#define LOGGING(...){                                      \
+  fprintf(stderr, "[SMT-LOG: %s:%3d] ", __FILE__, __LINE__); \
+  fprintf(stderr, __VA_ARGS__);                            \
 }
 #else
 #define LOGGING(...)
 #endif
 
-#define ERROR(...){                                            \
-  fprintf(stderr, "[SMT - ERROR] %s:%d ", __func__, __LINE__); \
-  fprintf(stderr, __VA_ARGS__);                                \
+#define ERROR(...){                                        \
+  fprintf(stderr, "[SMT-ERR: %s:%3d] ", __FILE__, __LINE__); \
+  fprintf(stderr, __VA_ARGS__);                            \
 }
 
+/* take care of actual allocation / deallocation */
 static void *my_calloc(const size_t count, const size_t size){
   void *ptr = calloc(count, size);
   if(ptr == NULL){
@@ -45,7 +46,8 @@ static void my_free(void *ptr){
   ptr = NULL;
 }
 
-static int smt_get_nitems(size_t *nitems, smt_t *node_root){
+/* get_nitems */
+static int kernel_smt_get_nitems(size_t *nitems, smt_t *node_root){
   smt_t *node_curr = node_root;
   for(*nitems = 0; node_curr != NULL; node_curr = node_curr->node_next, (*nitems)++){
     if(*nitems >= NITEMS_MAX){
@@ -55,70 +57,131 @@ static int smt_get_nitems(size_t *nitems, smt_t *node_root){
   return RETVAL_SUCCESS;
 }
 
-static int smt_add(smt_t **node_root, void *ptr, const size_t count, const size_t size, const char file[], const int line){
-  // allocate a node to hold ptr information
-  smt_t *node_new = my_calloc(1, sizeof(smt_t));
-  // assign members
-  node_new->ptr = ptr;
-  node_new->node_next = *node_root; // next node is root
-  node_new->count = count;
-  node_new->size = size;
-  size_t nitems_file = strlen(file);
-  node_new->file = my_calloc(nitems_file+1, sizeof(char));
-  memcpy(node_new->file, file, sizeof(char)*nitems_file);
-  node_new->file[nitems_file] = 0; // NUL
-  node_new->line = line;
-  // now new code is the root
-  *node_root = node_new;
-  LOGGING("allocated   (%p), count: %zu, size: %zu\n", ptr, count, size);
-  return RETVAL_SUCCESS;
-}
-
-static int smt_remove(smt_t **node_root, const void *ptr){
-  size_t nitems;
-  smt_get_nitems(&nitems, *node_root);
-  smt_t *node_prev = NULL;
-  smt_t *node_curr = *node_root;
-  for(size_t i = 0; i < nitems; i++){
-    if(node_curr->ptr == ptr){
-      if(node_prev == NULL){
-        *node_root = node_curr->node_next;
-      }else{
-        node_prev->node_next = node_curr->node_next;
-      }
-      LOGGING("deallocated (%p), count: %zu, size: %zu\n", node_curr->ptr, node_curr->count, node_curr->size);
-      my_free(node_curr->file);
-      my_free(node_curr);
-      return RETVAL_SUCCESS;
-    }else{
-      node_prev = node_curr;
-      node_curr = node_curr->node_next;
-    }
-  }
-  return RETVAL_FAILURE;
-}
-
-void *my_smt_calloc(smt_t **memories, const size_t count, const size_t size, const char file[], const int line){
-  size_t nitems;
-  if(smt_get_nitems(&nitems, *memories) != RETVAL_SUCCESS){
+static void smt_get_nitems(size_t *nitems, smt_t *node_root){
+  // assert (# of nodes < NITEMS_MAX)
+  if(kernel_smt_get_nitems(nitems, node_root) != RETVAL_SUCCESS){
     ERROR("More than %d buffers are allocated.\n", NITEMS_MAX);
     ERROR("This is not accepted by default.\n");
     ERROR("Define NITEMS_MAX explicitly to change this behaviour\n");
     exit(EXIT_FAILURE);
   }
+}
+
+/* search pointer */
+static int search(smt_t **node_root, smt_t **node_curr, smt_t **node_prev, const void *ptr){
+  /*
+   * return RETVAL_SUCCESS if "ptr" is found,
+   * otherwise return RETVAL_FAILURE
+   */
+  for(*node_prev = NULL, *node_curr = *node_root;
+      *node_curr != NULL;
+      *node_prev = *node_curr, *node_curr = (*node_curr)->node_next
+  ){
+    if((*node_curr)->ptr == ptr){
+      return RETVAL_SUCCESS;
+    }
+  }
+  return RETVAL_FAILURE;
+}
+
+/* functions which increase members */
+static int kernel_smt_attach(smt_t **node_root, void *ptr, const size_t count, const size_t size, char *ptrname, char *file, const int line){
+  // too many members should be rejected
+  size_t nitems;
+  if(kernel_smt_get_nitems(&nitems, *node_root) != RETVAL_SUCCESS){
+    return RETVAL_FAILURE;
+  }
+  smt_t *node_prev = NULL;
+  smt_t *node_curr = NULL;
+  // check duplication
+  // we should NOT be able to find the new pointer in the already-registered list
+  if(search(node_root, &node_curr, &node_prev, ptr) != RETVAL_FAILURE){
+    return RETVAL_FAILURE;
+  }
+  // allocate a node to hold ptr information
+  node_curr = my_calloc(1, sizeof(smt_t));
+  // next node is current root (new node is new root node)
+  node_curr->node_next = *node_root;
+  // assign other info
+  node_curr->ptr = ptr;
+  node_curr->count = count;
+  node_curr->size = size;
+  node_curr->ptrname = ptrname;
+  node_curr->file = file;
+  node_curr->line = line;
+  // now curr node is the root
+  *node_root = node_curr;
+  LOGGING("ADD %p (registered as %s at %s:%d) count=%zu size=%zu\n",
+      node_curr->ptr,
+      node_curr->ptrname,
+      node_curr->file,
+      node_curr->line,
+      node_curr->count,
+      node_curr->size
+  );
+  return RETVAL_SUCCESS;
+}
+
+void *smt_calloc(smt_t **memories, const size_t count, const size_t size, const char ptrname[], const char file[], const int line){
+  // allocate pointer
   void *ptr = my_calloc(count, size);
-  smt_add(memories, ptr, count, size, file, line);
+  if(kernel_smt_attach(memories, ptr, count, size, (char *)ptrname, (char *)file, line) != RETVAL_SUCCESS){
+    ERROR("More than %d buffers are allocated.\n", NITEMS_MAX);
+    ERROR("This is not accepted by default.\n");
+    ERROR("Define NITEMS_MAX explicitly to change this behaviour\n");
+    exit(EXIT_FAILURE);
+  }
   return ptr;
 }
 
-void smt_free(smt_t **memories, void *ptr){
-  if(ptr != NULL){
-    if(smt_remove(memories, ptr) != RETVAL_SUCCESS){
-      ERROR("Cannot find %p in the allocated list\n", ptr);
-      exit(EXIT_FAILURE);
-    }
-    my_free(ptr);
+void *smt_attach(smt_t **memories, void *ptr, const char ptrname[], const char file[], const int line){
+  // no information given, so assign zeros
+  const size_t count = 0;
+  const size_t size  = 0;
+  kernel_smt_attach(memories, ptr, count, size, (char *)ptrname, (char *)file, line);
+  return ptr;
+}
+
+/* functions which decrease members */
+static int kernel_smt_detach(smt_t **node_root, const void *ptr){
+  smt_t *node_prev = NULL;
+  smt_t *node_curr = NULL;
+  // we should be able to find it, since we know there is
+  if(search(node_root, &node_curr, &node_prev, ptr) != RETVAL_SUCCESS){
+    return RETVAL_FAILURE;
   }
+  if(node_prev == NULL){
+    // update root node
+    *node_root = node_curr->node_next;
+  }else{
+    // update link
+    node_prev->node_next = node_curr->node_next;
+  }
+  LOGGING("RMV %p (registered as %s at %s:%d) count=%zu size=%zu\n",
+      node_curr->ptr,
+      node_curr->ptrname,
+      node_curr->file,
+      node_curr->line,
+      node_curr->count,
+      node_curr->size
+  );
+  my_free(node_curr);
+  return RETVAL_SUCCESS;
+}
+
+void smt_detach(smt_t **memories, const void *ptr){
+  if(kernel_smt_detach(memories, ptr) != RETVAL_SUCCESS){
+    ERROR("Cannot find %p in the allocated list\n", ptr);
+    exit(EXIT_FAILURE);
+  }
+}
+
+void smt_free(smt_t **memories, void *ptr){
+  if(kernel_smt_detach(memories, ptr) != RETVAL_SUCCESS){
+    ERROR("Cannot find %p in the allocated list\n", ptr);
+    exit(EXIT_FAILURE);
+  }
+  my_free(ptr);
 }
 
 void smt_free_all(smt_t **memories){
@@ -128,6 +191,7 @@ void smt_free_all(smt_t **memories){
   }
 }
 
+/* auxiliary functions */
 int smt_get_info(smt_t *info, smt_t *memories, const void *ptr){
   size_t nitems;
   smt_get_nitems(&nitems, memories);
@@ -135,10 +199,10 @@ int smt_get_info(smt_t *info, smt_t *memories, const void *ptr){
     smt_t memory = *memories;
     if(ptr == memory.ptr){
       *info = memory;
-      return 0;
+      return RETVAL_SUCCESS;
     }
   }
-  return -1;
+  return RETVAL_FAILURE;
 }
 
 #undef LOGGING

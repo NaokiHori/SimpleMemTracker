@@ -12,8 +12,9 @@
 typedef int type0;
 
 static int print_info(smt_t info){
-  printf("ptr: %p, allocated at %s:%d, count: %zu, size: %zu\n",
+  printf("%p (registered as %s at %s:%d) count=%zu size=%zu\n",
       info.ptr,
+      info.ptrname,
       info.file,
       info.line,
       info.count,
@@ -28,7 +29,7 @@ int main(void){
   type0 *buf0 = NULL;
   smt_t info;
   //
-  buf0 = smt_calloc(&memories, nitems, sizeof(type0));
+  SMT_CALLOC(buf0, &memories, nitems, sizeof(type0));
   for(size_t i = 0; i < nitems; i++){
     buf0[i] = i;
   }

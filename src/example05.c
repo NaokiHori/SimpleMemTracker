@@ -11,7 +11,7 @@
 typedef int type0;
 
 static int my_static_function(smt_t **memories, type0 **buf, const size_t nitems){
-  *buf = smt_calloc(memories, nitems, sizeof(type0));
+  SMT_CALLOC(*buf, memories, nitems, sizeof(type0));
   return 0;
 }
 

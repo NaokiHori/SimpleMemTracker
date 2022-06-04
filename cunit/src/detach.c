@@ -5,8 +5,8 @@
 
 typedef int type;
 
-// normal use, remove nodes[0] from list with some data
-static void test_smt_remove_case0(void){
+// normal use, detach nodes[0] from list with some data
+static void test_kernel_smt_detach_case0(void){
   // answers
   const int retval_ans = 0;
   const size_t nitems_ans = 5;
@@ -17,13 +17,13 @@ static void test_smt_remove_case0(void){
   for(size_t i = 0; i < nitems_ans; i++){
     nodes = init_sample_linked_list(&node_root, nitems_ans);
     {
-      int retval = smt_remove(&node_root, nodes[i]->ptr);
+      int retval = kernel_smt_detach(&node_root, nodes[i]->ptr);
       CU_ASSERT(retval_ans == retval);
       my_free(nodes[i]->ptr);
     }
     {
       size_t nitems;
-      int retval = smt_get_nitems(&nitems, node_root);
+      int retval = kernel_smt_get_nitems(&nitems, node_root);
       CU_ASSERT(retval_ans   == retval);
       CU_ASSERT(nitems_ans-1 == nitems);
     }
@@ -31,8 +31,8 @@ static void test_smt_remove_case0(void){
   }
 }
 
-// abnormal use, remove unregistered from list with some data
-static void test_smt_remove_case1(void){
+// abnormal use, detach unregistered from list with some data
+static void test_kernel_smt_detach_case1(void){
   // answers
   const size_t nitems_ans = 5;
   // args
@@ -41,12 +41,12 @@ static void test_smt_remove_case1(void){
   // exec
   nodes = init_sample_linked_list(&node_root, nitems_ans);
   {
-    int retval = smt_remove(&node_root, NULL);
+    int retval = kernel_smt_detach(&node_root, NULL);
     CU_ASSERT(-1 == retval);
   }
   {
     size_t nitems;
-    int retval = smt_get_nitems(&nitems, node_root);
+    int retval = kernel_smt_get_nitems(&nitems, node_root);
     CU_ASSERT(0 == retval);
     CU_ASSERT(nitems_ans == nitems);
   }
@@ -54,8 +54,8 @@ static void test_smt_remove_case1(void){
 }
 
 CUNIT_CI_RUN(
-    "remove",
-    CUNIT_CI_TEST(test_smt_remove_case0),
-    CUNIT_CI_TEST(test_smt_remove_case1)
+    "detach",
+    CUNIT_CI_TEST(test_kernel_smt_detach_case0),
+    CUNIT_CI_TEST(test_kernel_smt_detach_case1)
 );
 

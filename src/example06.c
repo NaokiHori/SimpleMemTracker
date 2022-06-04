@@ -14,7 +14,7 @@ typedef int  type0;
 typedef char type1;
 
 static int my_static_function_0(smt_t **memories, type0 **buf, const size_t nitems){
-  *buf = smt_calloc(memories, nitems, sizeof(type0));
+  SMT_CALLOC(*buf, memories, nitems, sizeof(type0));
   return 0;
 }
 
@@ -33,7 +33,7 @@ int main(void){
   for(size_t i = 0; i < nitems; i++){
     buf0[i] = i;
   }
-  buf1 = smt_calloc(&memories, nitems, sizeof(type1));
+  SMT_CALLOC(buf1, &memories, nitems, sizeof(type1));
   smt_free(&memories, buf0);
   my_static_function_1(&memories, buf1);
   //

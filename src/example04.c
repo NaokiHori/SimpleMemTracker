@@ -17,8 +17,9 @@ typedef double        type3;
 typedef long long int type4;
 
 static int print_info(smt_t info){
-  printf("ptr: %p, allocated at %s:%d, count: %zu, size: %zu\n",
+  printf("%p (registered as %s at %s:%d) count=%zu size=%zu\n",
       info.ptr,
+      info.ptrname,
       info.file,
       info.line,
       info.count,
@@ -37,23 +38,23 @@ int main(void){
   type4 *buf4 = NULL;
   smt_t info;
   //
-  buf0 = smt_calloc(&memories, nitems, sizeof(type0));
+  SMT_CALLOC(buf0, &memories, nitems, sizeof(type0));
   for(size_t i = 0; i < nitems; i++){
     buf0[i] = -i;
   }
-  buf1 = smt_calloc(&memories, nitems, sizeof(type1));
+  SMT_CALLOC(buf1, &memories, nitems, sizeof(type1));
   for(size_t i = 0; i < nitems; i++){
     buf1[i] = 69+i;
   }
-  buf2 = smt_calloc(&memories, nitems, sizeof(type2));
+  SMT_CALLOC(buf2, &memories, nitems, sizeof(type2));
   for(size_t i = 0; i < nitems; i++){
     buf2[i] = i;
   }
-  buf3 = smt_calloc(&memories, nitems, sizeof(type3));
+  SMT_CALLOC(buf3, &memories, nitems, sizeof(type3));
   for(size_t i = 0; i < nitems; i++){
     buf3[i] = 1.*i;
   }
-  buf4 = smt_calloc(&memories, nitems, sizeof(type4));
+  SMT_CALLOC(buf4, &memories, nitems, sizeof(type4));
   for(size_t i = 0; i < nitems; i++){
     buf4[i] = 100*i;
   }

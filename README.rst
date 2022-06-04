@@ -32,37 +32,63 @@ Overview
 
 `Linked-list <https://github.com/NaokiHori/SimpleLinkedList>`_-based simple memory tracker (smt) in C99, where the following functions are implemented:
 
-* ``smt_calloc``: allocate buffer (wrapping ``calloc``) and register its information to ``memories``, e.g.:
+* ``smt_t *memories``: a structure (singly linked list) holding information of memory groups
+
+* ``SMT_CALLOC`` (macro of ``smt_calloc``): register buffer information to ``memories`` after allocating it, e.g.:
 
    .. code-block:: c
 
-      int  *buf0 = smt_calloc(&memories, nitems, sizeof(int ));
-      char *buf1 = smt_calloc(&memories, nitems, sizeof(char));
+      int  *buf0 = NULL;
+      char *buf1 = NULL;
+      SMT_CALLOC(buf0, &memories, nitems, sizeof(int ));
+      SMT_CALLOC(buf1, &memories, nitems, sizeof(char));
+      // buffers are non-NULL here
+
+* ``SMT_ATTACH`` (macro of `smt_attach`): register buffer information to ``memories``, which has been allocated by the user already (**not** using ``smt_calloc``), e.g.:
+
+   .. code-block:: c
+
+      // being allocated externally (without using this lib)
+      int *buf0 = calloc(nitems, sizeof(int));
+      // register its info here
+      SMT_ATTACH(buf0, &memories);
 
 * ``smt_get_info``: check information of the registered buffer, e.g.:
 
    .. code-block:: c
 
+      smt_t info;
       smt_get_info(&info, memories, buf0)
 
    giving
 
    .. code-block:: text
 
-      ptr: 0x600002e64240, allocated at src/main.c:16, count: 10, size: 4
+      0x600002ba0240 (registered as buf0 at src/example01.c:32) count=10 size=4
 
-* ``smt_free``: deallocate buffer (wrapping ``free``) and remove its information from ``memories``, e.g.:
+* ``smt_free``: erase buffer information from ``memories`` and deallocate the buffer itself, e.g.:
 
    .. code-block:: c
 
-      smt_calloc(&memories, buf0);
-      smt_calloc(&memories, buf1);
+      smt_free(&memories, buf0);
+      smt_free(&memories, buf1);
+      // NULL is assigned to buffers here
 
-* ``smt_free_all``: deallocate all buffers at once associated with ``memories``, e.g.:
+* ``smt_detach``: erase buffer information from ``memories`` but **do not** deallocate the buffer itself, e.g.:
+
+   .. code-block:: c
+
+      smt_detach(&memories, buf0);
+      smt_detach(&memories, buf1);
+      // buffers are still alive here
+      // users are responsible for freeing them by themselves
+
+* ``smt_free_all``: deallocate all buffers associated with ``memories``, e.g.:
 
    .. code-block:: c
 
       smt_free_all(&memories);
+      // NULL is assigned to all buffers included by the memory group
 
 The last function could be useful for error handlings for instance.
 

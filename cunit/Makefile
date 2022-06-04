@@ -9,21 +9,21 @@ INCLUDES   := -Iinclude \
 LIBS			 := -L/usr/local/lib \
 							-lcunit
 SRCS1      := src/common.c src/get_nitems.c
-SRCS2      := src/common.c src/add.c
-SRCS3      := src/common.c src/remove.c
+SRCS2      := src/common.c src/attach.c
+SRCS3      := src/common.c src/detach.c
 TARGET1    := test_get_nitems.out
-TARGET2    := test_add.out
-TARGET3    := test_remove.out
+TARGET2    := test_attach.out
+TARGET3    := test_detach.out
 
-all: get_nitems add remove
+all: get_nitems attach detach
 
 get_nitems:
 	$(CC) $(CFLAGS) $(INCLUDES) $(SRCS1) -o $(TARGET1) $(LIBS)
 
-add:
+attach:
 	$(CC) $(CFLAGS) $(INCLUDES) $(SRCS2) -o $(TARGET2) $(LIBS)
 
-remove:
+detach:
 	$(CC) $(CFLAGS) $(INCLUDES) $(SRCS3) -o $(TARGET3) $(LIBS)
 
 clean:
