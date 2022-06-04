@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<testsuites failures="0" errors="0" tests="9">
+  <testsuite errors="0" failures="0" tests="2" name="attach" time="0.000016">
+    <testcase classname="CUnit.attach" name="test_kernel_smt_attach_case0" time="0.000002"/>
+    <testcase classname="CUnit.attach" name="test_kernel_smt_attach_case1" time="0.000003"/>
+  </testsuite>
+  <testsuite errors="0" failures="0" tests="2" name="detach" time="0.000022">
+    <testcase classname="CUnit.detach" name="test_kernel_smt_detach_case0" time="0.000007"/>
+    <testcase classname="CUnit.detach" name="test_kernel_smt_detach_case1" time="0.000002"/>
+  </testsuite>
+  <testsuite errors="0" failures="0" tests="5" name="kernel_get_nitems" time="0.027767">
+    <testcase classname="CUnit.kernel_get_nitems" name="test_kernel_smt_get_nitems_case0" time="0.000001"/>
+    <testcase classname="CUnit.kernel_get_nitems" name="test_kernel_smt_get_nitems_case1" time="0.000002"/>
+    <testcase classname="CUnit.kernel_get_nitems" name="test_kernel_smt_get_nitems_case2" time="0.000053"/>
+    <testcase classname="CUnit.kernel_get_nitems" name="test_kernel_smt_get_nitems_case3" time="0.027502"/>
+    <testcase classname="CUnit.kernel_get_nitems" name="test_kernel_smt_get_nitems_case4" time="0.000187"/>
+  </testsuite>
+</testsuites>
