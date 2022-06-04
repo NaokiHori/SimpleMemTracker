@@ -64,7 +64,7 @@ static int smt_add(smt_t **node_root, void *ptr, const size_t count, const size_
   node_new->count = count;
   node_new->size = size;
   size_t nitems_file = strlen(file);
-  node_new->file = calloc(nitems_file+1, sizeof(char));
+  node_new->file = my_calloc(nitems_file+1, sizeof(char));
   memcpy(node_new->file, file, sizeof(char)*nitems_file);
   node_new->file[nitems_file] = 0; // NUL
   node_new->line = line;
