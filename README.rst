@@ -144,7 +144,7 @@ Users can perform these tests by themselves.
 
 * Unit tests
 
-   Although not necessary, I recommend to use a `CUnit Docker environment <https://hub.docker.com/r/naokihori/alpine-cunit>`_.
+   Although not necessary, I recommend to use a `CUnit Docker image <https://hub.docker.com/r/naokihori/alpine-cunit>`_, or users need to build `CUnit <http://cunit.sourceforge.net>`_ by themselves.
 
    .. code-block:: console
 
@@ -155,8 +155,6 @@ Users can perform these tests by themselves.
       $ git clone https://github.com/NaokiHori/SimpleMemTracker
 
       $ cd SimpleMemTracker
-
-      $ docker build -t naokihori/alpine-cunit:1.0 .
 
       $ docker run -it --rm -v $(PWD):/home naokihori/alpine-cunit:1.0
 
@@ -191,7 +189,7 @@ Users can perform these tests by themselves.
 
 * Memory leak checks
 
-   Although not necessary, I recommend to use a `Valgrind Docker environment <https://hub.docker.com/r/naokihori/alpine-valgrind>`_.
+   Although not necessary, I recommend to use a `Valgrind Docker image <https://hub.docker.com/r/naokihori/alpine-valgrind>`_, or users need to install `Valgrind <https://valgrind.org>`_ by themselves.
 
    .. code-block:: console
 
@@ -202,8 +200,6 @@ Users can perform these tests by themselves.
       $ git clone https://github.com/NaokiHori/SimpleMemTracker
 
       $ cd SimpleMemTracker
-
-      $ docker build -t naokihori/alpine-valgrind:1.0 .
 
       $ docker run -it --rm -v $(PWD):/home naokihori/alpine-valgrind:1.0
 
