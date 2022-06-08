@@ -101,9 +101,31 @@ Unit tests are available under ``cunit`` directory.
 Quick start
 ***********
 
-C compiler (later than `C99`) is needed.
+With `Docker <https://www.docker.com>`_ and `git <https://git-scm.com>`_, one can try this library easily and safely by
 
 .. code-block:: console
+
+   $ mkdir /path/to/your/working/directory
+
+   $ cd /path/to/your/working/directory
+
+   $ git clone https://github.com/NaokiHori/SimpleMemTracker
+
+   $ cd SimpleMemTracker
+
+   $ docker build -t simplememtracker:latest .
+
+   $ docker run -it --rm -v $(PWD):/home simplememtracker:latest
+
+   # make && ./example01.out
+
+Without Docker, one needs a C compiler (later than C99), `git`, and `make` locally installed.
+
+.. code-block:: console
+
+   $ mkdir /path/to/your/working/directory
+
+   $ cd /path/to/your/working/directory
 
    $ git clone https://github.com/NaokiHori/SimpleMemTracker
 
@@ -113,11 +135,98 @@ C compiler (later than `C99`) is needed.
 
    $ ./example01.out
 
-If you have `Valgrind <https://valgrind.org>`_ installed (or you might use `a Docker image <https://github.com/NaokiHori/Alpine-Dockerfiles/tree/valgrind>`_), you can check the memory leak tests by yourselves against all examples under ``src`` directory, which are performed as `a part of continuous integration processes <https://github.com/NaokiHori/SimpleMemTracker/blob/master/.github/workflows/ci.yml>`_.
+*****
+Tests
+*****
 
-*****
-Usage
-*****
+Unit tests and memory leak checks are performed `automatically <https://github.com/NaokiHori/SimpleMemTracker/blob/master/.github/workflows/ci.yml>`_.
+Users can perform these tests by themselves.
+
+* Unit tests
+
+   Although not necessary, I recommend to use a `CUnit Docker environment <https://hub.docker.com/r/naokihori/alpine-cunit>`_.
+
+   .. code-block:: console
+
+      $ mkdir /path/to/your/working/directory
+
+      $ cd /path/to/your/working/directory
+
+      $ git clone https://github.com/NaokiHori/SimpleMemTracker
+
+      $ cd SimpleMemTracker
+
+      $ docker build -t naokihori/alpine-cunit:1.0 .
+
+      $ docker run -it --rm -v $(PWD):/home naokihori/alpine-cunit:1.0
+
+      # cd cunit
+
+      # make clean && make
+
+      # ./test_get_nitems.out
+
+   giving
+
+   .. code-block:: text
+
+      Starting CUnit test:
+       ./test_get_nitems.out
+      JUnit XML:
+       test_get_nitems.out-Results.xml
+
+      Running Suite : kernel_get_nitems
+           Running Test : test_kernel_smt_get_nitems_case0 ..PASSED
+           Running Test : test_kernel_smt_get_nitems_case1 ..PASSED
+           Running Test : test_kernel_smt_get_nitems_case2 ..PASSED
+           Running Test : test_kernel_smt_get_nitems_case3 ..PASSED
+           Running Test : test_kernel_smt_get_nitems_case4 ..PASSED
+
+      Run Summary       -      Run    Failed  Inactive   Skipped
+           Suites       :        1         0         0         0
+           Asserts      :        8         0       n/a       n/a
+           Tests        :        5         0         0         0
+
+      Elapsed Time: 0.051(s)
+
+* Memory leak checks
+
+   Although not necessary, I recommend to use a `Valgrind Docker environment <https://hub.docker.com/r/naokihori/alpine-valgrind>`_.
+
+   .. code-block:: console
+
+      $ mkdir /path/to/your/working/directory
+
+      $ cd /path/to/your/working/directory
+
+      $ git clone https://github.com/NaokiHori/SimpleMemTracker
+
+      $ cd SimpleMemTracker
+
+      $ docker build -t naokihori/alpine-valgrind:1.0 .
+
+      $ docker run -it --rm -v $(PWD):/home naokihori/alpine-valgrind:1.0
+
+      # make clean && make
+
+      # valgrind \
+          --leak-check=full \
+          --error-exitcode=1 \
+          --xml=yes \
+          --xml-file=valgrind.xml \
+          ./example01.out
+
+   giving a file ``valgrind.xml``, in which results are reported.
+
+For detailed usages of the used Docker images, please refer to:
+
+* https://github.com/NaokiHori/Alpine-Dockerfiles/tree/cunit
+
+* https://github.com/NaokiHori/Alpine-Dockerfiles/tree/valgrind
+
+*************************
+Usage in external library
+*************************
 
 No installation is needed and no external library dependency exists; after copying a header file ``include/simple_mem_tracker.h`` and its source file ``src/simple_mem_tracker.c`` to the corresponding places of your project, all functions implemented there can be used.
 
